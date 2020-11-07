@@ -4,6 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import okhttp3.*
 import okio.ByteString
+import okio.ByteString.Companion.toByteString
 import java.util.*
 
 
@@ -17,6 +18,7 @@ class StreamWebSocketManager: WebSocketListener() {
     private var header: Map<String,String>? = null
     var updatesEnabled = false
 
+    var messageByteCallback: ((ByteString)->Unit)? = null
     var messageCallback: ((String)->Unit)? = null
     var closeCallback: ((String)->Unit)? = null
     var conectedCallback: ((Boolean)->Unit)? = null
@@ -49,7 +51,11 @@ class StreamWebSocketManager: WebSocketListener() {
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
         // Log.i("StreamWebSocketManager","onMessage bytes")
-        //
+        if(messageByteCallback != null) {
+            uiThreadHandler.post {
+                messageByteCallback!!(bytes)
+            }
+        }
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -142,5 +148,11 @@ class StreamWebSocketManager: WebSocketListener() {
         // Log.i("StreamWebSocketManager","⭕️ -> sending $msg")
         // Log.i("StreamWebSocketManager","⭕️ -> ws is null? ${ws == null}")
         ws?.send(msg)
+    }
+
+    fun send(msg: ByteArray) {
+        // Log.i("StreamWebSocketManager","⭕️ -> sending $msg")
+        // Log.i("StreamWebSocketManager","⭕️ -> ws is null? ${ws == null}")
+        ws?.send(msg.toByteString())
     }
 }

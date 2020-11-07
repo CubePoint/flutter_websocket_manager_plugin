@@ -7,6 +7,7 @@ class MethodName {
         const val CONNECT = "connect"
         const val DISCONNECT = "disconnect"
         const val SEND_MESSAGE = "send"
+        const val SEND_MESSAGE_BUFFER = "send_buffer"
         const val AUTO_RETRY = "autoRetry"
         const val ON_MESSAGE = "onMessage"
         const val ON_DONE = "onDone"

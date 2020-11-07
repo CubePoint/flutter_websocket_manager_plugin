@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 
@@ -11,6 +12,7 @@ const String _METHOD_CHANNEL_DISCONNECT = 'disconnect';
 const String _METHOD_CHANNEL_ON_MESSAGE = 'onMessage';
 const String _METHOD_CHANNEL_ON_DONE = 'onDone';
 const String _METHOD_CHANNEL_SEND = 'send';
+const String _METHOD_CHANNEL_SEND_BUFFER = 'send_buffer';
 const String _METHOD_CHANNEL_TEST_ECHO = 'echoTest';
 
 /// Provides an easy way to create native websocket connection.
@@ -89,8 +91,12 @@ class WebsocketManager {
   }
 
   /// Send a [String] message to the connected WebSocket.
-  void send(String message) {
-    _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_SEND, message);
+  /// Send a [Uint8List] message to the connected WebSocket.
+  void send(Object message) {
+    if (message is String)
+      _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_SEND, message);
+    if (message is Uint8List)
+      _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_SEND_BUFFER, message);
   }
 
   /// Adds a callback handler to this WebSocket sent data.

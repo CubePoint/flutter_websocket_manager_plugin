@@ -4,7 +4,7 @@ import EventStreamHandler
 import br.com.engapp.websocket_manager.models.MethodName
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-
+import okio.ByteString
 
 class WebSocketMethodChannelHandler(private val messageStreamHandler:EventStreamHandler,
         private val closeStreamHandler:EventStreamHandler) : MethodChannel.MethodCallHandler {
@@ -26,6 +26,10 @@ class WebSocketMethodChannelHandler(private val messageStreamHandler:EventStream
                     // Log.i("WebsocketManagerPlugin","sending $msg")
                     messageStreamHandler.send(msg)
                 }
+                websocketManager.messageByteCallback = fun (msg: ByteString) {
+                    // Log.i("WebsocketManagerPlugin","sending $msg")
+                    messageStreamHandler.send(msg.toByteArray())
+                }
                 websocketManager.closeCallback = fun (msg: String) {
                     // print("closed $msg")
                     closeStreamHandler.send(msg)
@@ -45,6 +49,11 @@ class WebSocketMethodChannelHandler(private val messageStreamHandler:EventStream
                 websocketManager.send(message)
                 result.success("")
             }
+            MethodName.SEND_MESSAGE_BUFFER -> {
+                var messageByte: ByteArray = call.arguments()!!
+                websocketManager.send(messageByte)
+                result.success("")
+            }
             MethodName.AUTO_RETRY -> {
                 var retry:Boolean? = call.arguments()
                 if(retry == null) {
@@ -57,6 +66,10 @@ class WebSocketMethodChannelHandler(private val messageStreamHandler:EventStream
                 websocketManager.messageCallback = fun (msg: String) {
                     // Log.i("WebsocketManagerPlugin","sending $msg")
                     messageStreamHandler.send(msg)
+                }
+                websocketManager.messageByteCallback = fun (msg: ByteString) {
+                    // Log.i("WebsocketManagerPlugin","sending $msg")
+                    messageStreamHandler.send(msg.toByteArray())
                 }
                 result.success("")
             }
